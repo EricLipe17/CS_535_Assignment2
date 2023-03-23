@@ -28,6 +28,7 @@ machines+=($second_namenode)
 
 for j in "${machines[@]}"
 do
+      ssh $j "pkill supervisord"
       ssh $j "mkdir -p /s/$j/a/tmp/storm_$USER"
       ssh $j "mkdir -p /tmp/storm_$USER"
 done
@@ -41,6 +42,8 @@ echo "Nimbus Namenode: $second_namenode"
 echo "Workers: ${workers[*]}"
 echo "Port Range: ${port_range[0]}-${port_range[1]}"
 
+ssh $first_namenode "rm -rf /tmp/zookeeper"
+ssh $first_namenode "rm -rf /s/$first_namenode/tmp/zookeeper/a/tmp/zookeeper_$USER"
 mkdir -p ~/stormConf
 mkdir -p ~/zookeeperConf
 mkdir -p ~/stormExamples
@@ -50,7 +53,7 @@ cp -r -u /usr/local/storm/latest/examples/* ~/stormExamples/
 
 cp ~/zookeeperConf/zoo_sample.cfg ~/zookeeperConf/zoo.cfg
 
-sed -i "12s|#dataDir=/s/$HOSTNAME/a/tmp/|dataDir=/s/$HOSTNAME/a/tmp/zookeeper_$USER/data|" ~/zookeeperConf/zoo.cfg
+sed -i "12s|dataDir=/tmp/zookeeper|dataDir=/s/$HOSTNAME/a/tmp/zookeeper_$USER|" ~/zookeeperConf/zoo.cfg
 sed -i "14s|clientPort=2181|clientPort=$first_port|" ~/zookeeperConf/zoo.cfg
 
 sed -i "18s|# storm.zookeeper.servers:|storm.zookeeper.servers:|" ~/stormConf/storm.yaml
@@ -71,6 +74,12 @@ sed -i "31s|#|    - $(($first_port+4))|" ~/stormConf/storm.yaml
 sed -i "32s|## List of custom kryo decorators|ui.port: $(($first_port+5))|" ~/stormConf/storm.yaml
 sed -i "36s|## Locations of the drpc servers|java.library.path: \"/usr/lib/jvm/java-1.8.0-openjdk\"|" ~/stormConf/storm.yaml
 cp /etc/supervisord.conf ~/stormConf/zk-supervisord.conf 
+sed -i "37s|# drpc.servers:|java.home: \"/usr/lib/jvm/java-1.8.0-openjdk/jre\"|" ~/stormConf/storm.yaml
+sed -i "41s|## Metrics Consumers|supervisor.thrift.port: $(($first_port+6))|" ~/stormConf/storm.yaml
+sed -i "42s|## max.retain.metric.tuples|pacemaker.port: $(($first_port+7))|" ~/stormConf/storm.yaml
+sed -i "43s|## - task queue will be unbounded when max.retain.metric.tuples is equal or less than 0.|storm.exhibitor.port: $(($first_port+8))|" ~/stormConf/storm.yaml
+sed -i "44s|## whitelist / blacklist|nimbus.thrift.port: $(($first_port+9))|" ~/stormConf/storm.yaml
+sed -i "46s|## - you need to specify either whitelist or blacklist, or none of them. You can't specify both of them.|logviewer.port: $(($first_port+10))|" ~/stormConf/storm.yaml
 
 sed -i "4s|file=/run/supervisor/supervisor.sock|file=/s/%(ENV_HOSTNAME)s/a/tmp/storm_%(ENV_USER)s/supervisor.sock|" ~/stormConf/zk-supervisord.conf
 sed -i "16s|logfile=/var/log/supervisor/supervisord.log|logfile=/s/%(ENV_HOSTNAME)s/a/tmp/storm_%(ENV_USER)s/supervisord.log|" ~/stormConf/zk-supervisord.conf
