@@ -18,8 +18,9 @@ public class SequentialCountBolt extends BaseBasicBolt {
     @Override
     public void execute(Tuple tuple, BasicOutputCollector collector) {
         ArrayList<Long> counts;
-        for (int i = 0; i < tuple.size(); i++) {
-            String hashtag = tuple.getString(i);
+        ArrayList<String> bucket = (ArrayList<String>)tuple.getValue(0);
+        for (int i = 0; i < bucket.size(); i++) {
+            String hashtag = bucket.get(i);
             counts = this.count_structure.get(hashtag);
             if (counts == null) {
                 counts = new ArrayList<>(2);
@@ -30,17 +31,25 @@ public class SequentialCountBolt extends BaseBasicBolt {
             count++;
             counts.set(0, count);
             this.count_structure.put(hashtag, counts);
-
-            // TODO: implement pruning piece of algorithm
-            // TODO: consider implementing this as a sliding window?
-
-            collector.emit(new Values(hashtag, counts));
         }
+
+        // Prune the data structure
+        for (Map.Entry<String, ArrayList<Long>> entry : this.count_structure.entrySet()) {
+            final String hashtag = entry.getKey();
+            ArrayList<Long> freq_delta = entry.getValue();
+            final long sum = freq_delta.get(0) + freq_delta.get(1);
+
+            if (sum <= this.current) {
+                this.count_structure.remove(hashtag);
+            }
+        }
+
+        collector.emit(new Values(this.count_structure));
         this.current++;
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("hashtag", "count_and_delta"));
+        declarer.declare(new Fields("count_structure"));
     }
 }
