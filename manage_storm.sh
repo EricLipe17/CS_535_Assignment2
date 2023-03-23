@@ -37,7 +37,7 @@ while getopts "hsk:z:n:w:" arg; do
       WORKER_CMD="supervisord -c ~/stormConf/worker-supervisord.conf"
       ;;
     k)
-      ZOOKEEPER_CMD="kill \$(ps -aux | pgrep supervisord | head -n 1)"
+      ZOOKEEPER_CMD="pkill supervisord"
       WORKER_CMD=$ZOOKEEPER_CMD
       NIMBUS_CMD=$ZOOKEEPER_CMD
       ;;
