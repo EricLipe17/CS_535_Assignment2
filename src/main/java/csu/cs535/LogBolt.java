@@ -1,6 +1,7 @@
 package csu.cs535;
 
 import org.apache.storm.shade.org.apache.commons.lang.StringUtils;
+import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.BasicOutputCollector;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
@@ -12,24 +13,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-class Pair {
-    String first;
-    long second;
-
-    public Pair(String first, long second) {
-        this.first = first;
-        this.second = second;
-    }
-
-    public String getFirst() {
-        return first;
-    }
-
-    public long getSecond() {
-        return second;
-    }
-}
-
 class EntryComparator implements Comparator<Map.Entry<String, Long>> {
     @Override
     public int compare(Map.Entry<String, Long> e1, Map.Entry<String, Long> e2) {
@@ -40,11 +23,18 @@ class EntryComparator implements Comparator<Map.Entry<String, Long>> {
 public class LogBolt extends BaseBasicBolt {
     long last_log_time;
     Map<String, Long> count_structure = new HashMap<>();
-    FileWriter fw = new FileWriter("hashtag_counts.log", true);
-    BufferedWriter bw = new BufferedWriter(fw);
+    FileWriter fw;
+    BufferedWriter bw;
 
-    public LogBolt() throws IOException {
+    @Override
+    public void prepare(Map<String, Object> topoConf, TopologyContext context) {
         this.last_log_time = System.currentTimeMillis() / 1000L;
+        try {
+            this.fw = new FileWriter("hashtag_counts.log", true);
+            this.bw = new BufferedWriter(fw);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -66,13 +56,14 @@ public class LogBolt extends BaseBasicBolt {
             entries.sort(new EntryComparator());
 
             ArrayList<String> topHashtags = new ArrayList<>(100);
-            for (int i = 0; i < 100; i++) {
+            int loopVal = Math.min(entries.size(), 100);
+            for (int i = 0; i < loopVal; i++) {
                 topHashtags.add(entries.get(i).getKey());
             }
-            String log_line = StringUtils.join(topHashtags, ",");
+            String log_line = curr_time + " " + StringUtils.join(topHashtags, ",");
 
             try {
-                this.bw.write(log_line);
+                this.bw.append(log_line);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -84,5 +75,17 @@ public class LogBolt extends BaseBasicBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         declarer.declare(new Fields());
+    }
+
+    @Override
+    public void cleanup() {
+        try {
+            this.bw.flush();
+            this.bw.close();
+
+            this.fw.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -19,7 +19,7 @@ public class TwitterSampleSpout extends BaseRichSpout {
    // ADD FILE PATH TO hastags.txt BELOW
    // ADD FILE PATH TO hastags.txt BELOW
    // ADD FILE PATH TO hastags.txt BELOW
-   String fileName = "<ADD FILEPATH TO hashtags.txt>";
+   String fileName = "/s/chopin/a/grad/ericlipe/hashtags.txt";
    // ADD FILE PATH TO hastags.txt ABOVE
    // ADD FILE PATH TO hastags.txt ABOVE
    // ADD FILE PATH TO hastags.txt ABOVE
@@ -42,7 +42,7 @@ public class TwitterSampleSpout extends BaseRichSpout {
    @Override
    public void nextTuple() {
       if (in == null) return;
-         String line = null;
+      String line = null;
          
       try {
          line = in.readLine();
