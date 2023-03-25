@@ -1,10 +1,12 @@
 package csu.cs535;
 
 import org.apache.storm.shade.org.apache.commons.lang.StringUtils;
+import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.BasicOutputCollector;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
+import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 
@@ -20,14 +22,22 @@ class EntryComparator implements Comparator<Map.Entry<String, Long>> {
     }
 }
 
-public class LogBolt extends BaseBasicBolt {
+public class LogBolt extends BaseRichBolt {
     long last_log_time;
     Map<String, Long> count_structure = new HashMap<>();
     FileWriter fw;
     BufferedWriter bw;
 
+    OutputCollector collector;
+
     @Override
-    public void prepare(Map<String, Object> topoConf, TopologyContext context) {
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        declarer.declare(new Fields());
+    }
+
+    @Override
+    public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector outputCollector) {
+        this.collector = outputCollector;
         this.last_log_time = System.currentTimeMillis() / 1000L;
         try {
             this.fw = new FileWriter("hashtag_counts.log", true);
@@ -38,7 +48,7 @@ public class LogBolt extends BaseBasicBolt {
     }
 
     @Override
-    public void execute(Tuple tuple, BasicOutputCollector collector) {
+    public void execute(Tuple tuple) {
         Map<String, ArrayList<Long>> structure = (Map<String, ArrayList<Long>>)tuple.getValue(0);
         Long count;
         for (Map.Entry<String, ArrayList<Long>> entry : structure.entrySet()) {
@@ -70,11 +80,6 @@ public class LogBolt extends BaseBasicBolt {
 
             this.last_log_time = System.currentTimeMillis() / 1000L;
         }
-    }
-
-    @Override
-    public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields());
     }
 
     @Override
