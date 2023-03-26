@@ -3,9 +3,7 @@ package csu.cs535;
 import org.apache.storm.shade.org.apache.commons.lang.StringUtils;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
-import org.apache.storm.topology.BasicOutputCollector;
 import org.apache.storm.topology.OutputFieldsDeclarer;
-import org.apache.storm.topology.base.BaseBasicBolt;
 import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
@@ -40,7 +38,7 @@ public class LogBolt extends BaseRichBolt {
         this.collector = outputCollector;
         this.last_log_time = System.currentTimeMillis() / 1000L;
         try {
-            this.fw = new FileWriter("hashtag_counts.log", true);
+            this.fw = new FileWriter("/tmp/hashtag_counts.log", true);
             this.bw = new BufferedWriter(fw);
         } catch (IOException e) {
             throw new RuntimeException(e);
