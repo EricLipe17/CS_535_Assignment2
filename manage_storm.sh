@@ -35,11 +35,13 @@ while getopts "hsk:z:n:w:" arg; do
       ZOOKEEPER_CMD="supervisord -c ~/stormConf/zk-supervisord.conf"
       NIMBUS_CMD="supervisord -c ~/stormConf/nimbus-supervisord.conf"
       WORKER_CMD="supervisord -c ~/stormConf/worker-supervisord.conf"
+      ACTION="Starting"
       ;;
     k)
       ZOOKEEPER_CMD="pkill supervisord"
       WORKER_CMD=$ZOOKEEPER_CMD
       NIMBUS_CMD=$ZOOKEEPER_CMD
+      ACTION="Killing"
       ;;
     z)
       ZOOKEEPER=$OPTARG
@@ -53,14 +55,14 @@ while getopts "hsk:z:n:w:" arg; do
   esac
 done
 
-echo Starting zookeeper with cmd: $ZOOKEEPER_CMD
+echo $ACTION zookeeper with cmd: $ZOOKEEPER_CMD
 $ZOOKEEPER_CMD
 
-echo Starting nimbus with cmd: ssh "$NIMBUS" "$NIMBUS_CMD"
+echo $ACTION nimbus with cmd: ssh "$NIMBUS" "$NIMBUS_CMD"
 ssh "$NIMBUS" "$NIMBUS_CMD"
 
 while read MACHINE; do
-  echo Starting worker $MACHINE with cmd: ssh -n "$MACHINE" "$WORKER_CMD"
+  echo $ACTION worker $MACHINE with cmd: ssh -n "$MACHINE" "$WORKER_CMD"
   ssh -n "$MACHINE" "$WORKER_CMD"
 done < "$WORKERS"
 
