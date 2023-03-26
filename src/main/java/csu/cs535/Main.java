@@ -11,9 +11,9 @@ public class Main {
     public static void main(String[] args) {
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("FakeTwitterSpout", new TwitterSampleSpout());
-        builder.setBolt("BucketBolt", new BucketBolt(100), 2).shuffleGrouping("FakeTwitterSpout");
-        builder.setBolt("CountBolt", new SequentialCountBolt(), 2).shuffleGrouping("BucketBolt");
-        builder.setBolt("LogBolt", new LogBolt(), 2).shuffleGrouping("CountBolt");
+        builder.setBolt("BucketBolt", new BucketBolt(100), 1).shuffleGrouping("FakeTwitterSpout");
+        builder.setBolt("CountBolt", new SequentialCountBolt(), 1).shuffleGrouping("BucketBolt");
+        builder.setBolt("LogBolt", new LogBolt(), 1).shuffleGrouping("CountBolt");
 
         Config conf = new Config();
         conf.setDebug(true);
