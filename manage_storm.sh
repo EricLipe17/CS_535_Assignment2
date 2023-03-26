@@ -38,7 +38,7 @@ while getopts "hskz:n:w:" arg; do
       ACTION="Starting"
       ;;
     k)
-      ZOOKEEPER_CMD="pkill supervisord"
+      ZOOKEEPER_CMD="pkill -u `whoami` supervisord"
       WORKER_CMD=$ZOOKEEPER_CMD
       NIMBUS_CMD=$ZOOKEEPER_CMD
       ACTION="Killing"
@@ -56,10 +56,10 @@ while getopts "hskz:n:w:" arg; do
 done
 
 echo $ACTION zookeeper with cmd: $ZOOKEEPER_CMD
-$ZOOKEEPER_CMD || true
+ssh "$ZOOKEEPER" $ZOOKEEPER_CMD
 
 echo $ACTION nimbus with cmd: ssh "$NIMBUS" "$NIMBUS_CMD"
-ssh "$NIMBUS" "$NIMBUS_CMD" || true
+ssh "$NIMBUS" "$NIMBUS_CMD"
 
 while read MACHINE; do
   echo $ACTION worker $MACHINE with cmd: ssh -n "$MACHINE" "$WORKER_CMD"
