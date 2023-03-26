@@ -8,11 +8,11 @@ import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SequentialCountBolt extends BaseBasicBolt {
-    Map<String, ArrayList<Long>> count_structure = new HashMap<>();
+    ConcurrentHashMap<String, ArrayList<Long>> count_structure = new ConcurrentHashMap<>();
     long current = 1;
 
     @Override

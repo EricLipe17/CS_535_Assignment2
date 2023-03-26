@@ -12,6 +12,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 class EntryComparator implements Comparator<Map.Entry<String, Long>> {
     @Override
@@ -22,7 +23,7 @@ class EntryComparator implements Comparator<Map.Entry<String, Long>> {
 
 public class LogBolt extends BaseRichBolt {
     long last_log_time;
-    Map<String, Long> count_structure = new HashMap<>();
+    ConcurrentHashMap<String, Long> count_structure = new ConcurrentHashMap<>();
     FileWriter fw;
     BufferedWriter bw;
 
