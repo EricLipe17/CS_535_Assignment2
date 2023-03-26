@@ -56,10 +56,10 @@ while getopts "hskz:n:w:" arg; do
 done
 
 echo $ACTION zookeeper with cmd: $ZOOKEEPER_CMD
-ssh "$ZOOKEEPER" $ZOOKEEPER_CMD
+ssh "$ZOOKEEPER" $ZOOKEEPER_CMD || true
 
 echo $ACTION nimbus with cmd: ssh "$NIMBUS" "$NIMBUS_CMD"
-ssh "$NIMBUS" "$NIMBUS_CMD"
+ssh "$NIMBUS" "$NIMBUS_CMD" || true
 
 while read MACHINE; do
   echo $ACTION worker $MACHINE with cmd: ssh -n "$MACHINE" "$WORKER_CMD"
