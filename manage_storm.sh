@@ -24,7 +24,7 @@ if [[ $# -ne 7 ]]; then
   exit 0
 fi
 
-while getopts "hsk:z:n:w:" arg; do
+while getopts "hskz:n:w:" arg; do
   # shellcheck disable=SC2220
   case $arg in
     h)
