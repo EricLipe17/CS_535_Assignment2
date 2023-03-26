@@ -53,10 +53,14 @@ while getopts "hsk:z:n:w:" arg; do
   esac
 done
 
-ssh "$ZOOKEEPER" "$ZOOKEEPER_CMD"
+echo Starting zookeeper with cmd: $ZOOKEEPER_CMD
+$ZOOKEEPER_CMD
+
+echo Starting nimbus with cmd: ssh "$NIMBUS" "$NIMBUS_CMD"
 ssh "$NIMBUS" "$NIMBUS_CMD"
 
 while read MACHINE; do
+  echo Starting worker $MACHINE with cmd: ssh -n "$MACHINE" "$WORKER_CMD"
   ssh -n "$MACHINE" "$WORKER_CMD"
 done < "$WORKERS"
 
