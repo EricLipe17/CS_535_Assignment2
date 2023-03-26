@@ -39,7 +39,7 @@ public class LogBolt extends BaseRichBolt {
         this.collector = outputCollector;
         this.last_log_time = System.currentTimeMillis() / 1000L;
         try {
-            this.fw = new FileWriter("/tmp/hashtag_counts.log", true);
+            this.fw = new FileWriter("/tmp/hashtag_counts.log", false);
             this.bw = new BufferedWriter(fw);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -61,7 +61,7 @@ public class LogBolt extends BaseRichBolt {
         }
         long curr_time = System.currentTimeMillis() / 1000L;
         if (curr_time - this.last_log_time >= 10) {
-            List<Map.Entry<String, Long>> entries = new LinkedList<Map.Entry<String, Long>>(this.count_structure.entrySet());
+            List<Map.Entry<String, Long>> entries = new LinkedList<>(this.count_structure.entrySet());
             entries.sort(new EntryComparator());
 
             ArrayList<String> topHashtags = new ArrayList<>(100);
@@ -72,7 +72,7 @@ public class LogBolt extends BaseRichBolt {
             String log_line = curr_time + " " + StringUtils.join(topHashtags, ",");
 
             try {
-                this.bw.append(log_line);
+                this.bw.write(log_line);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
