@@ -5,9 +5,7 @@ import org.apache.storm.StormSubmitter;
 import org.apache.storm.generated.AlreadyAliveException;
 import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.InvalidTopologyException;
-import org.apache.storm.shade.org.apache.commons.lang.StringUtils;
 import org.apache.storm.topology.TopologyBuilder;
-import org.apache.storm.tuple.Values;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +24,7 @@ public class Main {
 
         Config conf = new Config();
         conf.setDebug(true);
-        String topoName = "Sequential Count Topology";
+        String topoName = "Hashtags";
         conf.setNumWorkers(1);
         try {
             StormSubmitter.submitTopologyWithProgressBar(topoName, conf, builder.createTopology());

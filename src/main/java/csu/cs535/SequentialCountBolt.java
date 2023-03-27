@@ -44,7 +44,9 @@ public class SequentialCountBolt extends BaseBasicBolt {
             }
         }
 
-        collector.emit(new Values(this.count_structure));
+        if (this.count_structure.size() > 0) {
+            collector.emit(new Values(this.count_structure));
+        }
         this.current++;
     }
 
