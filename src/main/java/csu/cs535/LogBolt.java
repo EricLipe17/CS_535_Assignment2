@@ -37,8 +37,6 @@ public class LogBolt extends BaseRichBolt {
         this.last_log_time = System.currentTimeMillis() / 1000L;
         try {
             this.fw = new FileWriter("/s/chopin/a/grad/ericlipe/hashtag_counts.log", false);
-            this.fw.write(String.format("Start of log file at time %d\n", this.last_log_time));
-            this.fw.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
