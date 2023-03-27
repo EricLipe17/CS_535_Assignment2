@@ -42,16 +42,16 @@ public class SequentialCountBolt extends BaseBasicBolt {
             if (sum <= this.current) {
                 this.count_structure.remove(hashtag);
             }
+            else {
+                collector.emit(new Values(hashtag, freq_delta.get(0)));
+            }
         }
 
-        if (this.count_structure.size() > 0) {
-            collector.emit(new Values(this.count_structure));
-        }
         this.current++;
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("count_structure"));
+        declarer.declare(new Fields("hashtag", "count"));
     }
 }

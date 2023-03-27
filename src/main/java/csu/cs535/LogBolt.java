@@ -46,19 +46,17 @@ public class LogBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        Map<String, ArrayList<Long>> count_structure = (ConcurrentHashMap<String, ArrayList<Long>>)tuple.getValue(0);
-        Long count;
-        for (Map.Entry<String, ArrayList<Long>> entry : count_structure.entrySet()) {
-            final String hashtag = entry.getKey();
-            count = this.hashtag_counts.get(hashtag);
-            if (count == null) {
-                count = entry.getValue().get(0);
-            }
-            else {
-                count += entry.getValue().get(0);
-            }
-            this.hashtag_counts.put(hashtag, count);
+        final String hashtag = tuple.getString(0);
+        final long latest_count = tuple.getLong(1);
+        long count = this.hashtag_counts.get(hashtag);
+        if (count == null) {
+            count = latest_count;
         }
+        else {
+            count += latest_count;
+        }
+        this.hashtag_counts.put(hashtag, count);
+
         long curr_time = System.currentTimeMillis() / 1000L;
         if (curr_time - this.last_log_time >= 10) {
             List<Map.Entry<String, Long>> entries = new LinkedList<>(this.hashtag_counts.entrySet());
