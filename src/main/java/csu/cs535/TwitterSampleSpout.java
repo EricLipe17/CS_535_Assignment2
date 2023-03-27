@@ -4,10 +4,8 @@ import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichSpout;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.LineNumberReader;
+
+import java.io.*;
 import java.util.Map;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Values;
@@ -24,7 +22,8 @@ public class TwitterSampleSpout extends BaseRichSpout {
    // ADD FILE PATH TO hastags.txt ABOVE
    // ADD FILE PATH TO hastags.txt ABOVE
 
-   private LineNumberReader in;
+   private RandomAccessFile in;
+   private long filelen;
 		
    public TwitterSampleSpout() {
    }
@@ -33,21 +32,26 @@ public class TwitterSampleSpout extends BaseRichSpout {
    public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
       this.collector = collector;
       try {
-         in = new LineNumberReader(new FileReader(fileName));
+         in = new RandomAccessFile(fileName, "r");
+         filelen = in.length();
       } catch (FileNotFoundException e){
          System.err.print("######## FileNotFoundException: " + e);
+      } catch (IOException e) {
+         throw new RuntimeException(e);
       }
    }
 
    @Override
    public void nextTuple() {
       if (in == null) return;
-      String line = null;
-
-      if (in.getLineNumber() == 99999) {
-         in.setLineNumber(0);
+      try {
+         if (in.getFilePointer() == filelen) {
+            in.seek(0);
+         }
+      } catch (IOException e) {
+         throw new RuntimeException(e);
       }
-         
+      String line = null;
       try {
          line = in.readLine();
       } catch (IOException e) {
