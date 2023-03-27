@@ -46,14 +46,15 @@ public class LogBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
+        long count;
         final String hashtag = tuple.getString(0);
         final long latest_count = tuple.getLong(1);
-        long count = this.hashtag_counts.get(hashtag);
-        if (count == null) {
+        if (this.hashtag_counts.get(hashtag) == null) {
             count = latest_count;
         }
         else {
-            count += latest_count;
+
+            count = latest_count + this.hashtag_counts.get(hashtag);
         }
         this.hashtag_counts.put(hashtag, count);
 
