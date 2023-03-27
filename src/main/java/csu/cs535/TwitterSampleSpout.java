@@ -38,7 +38,7 @@ public class TwitterSampleSpout extends BaseRichSpout {
          System.err.print("######## FileNotFoundException: " + e);
       }
    }
-			
+
    @Override
    public void nextTuple() {
       if (in == null) return;
@@ -54,8 +54,13 @@ public class TwitterSampleSpout extends BaseRichSpout {
          // System.out.println("SPOUT " + line);
          collector.emit(new Values(line));
       }
+      else {
+         // When the file has no more hashtags let our count bolt(s) know so that it can process/flush the rest
+         // of its bucket to the log bolt
+         this.collector.emit(new Values("!!NO_MORE_HASHTAGS!!"));
+      }
    }
-			
+
    @Override
    public void close() {
       if (in == null) return;
