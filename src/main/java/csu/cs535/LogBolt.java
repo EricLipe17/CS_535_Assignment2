@@ -48,44 +48,51 @@ public class LogBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        long count;
-        final String hashtag = tuple.getString(0);
-        final long latest_count = tuple.getLong(1);
-        if (this.hashtag_counts.get(hashtag) == null) {
-            count = latest_count;
-        }
-        else {
-
-            count = latest_count + this.hashtag_counts.get(hashtag);
-        }
-        this.hashtag_counts.put(hashtag, count);
+//        long count;
+//        final String hashtag = tuple.getString(0);
+//        final long latest_count = tuple.getLong(1);
+//        if (this.hashtag_counts.get(hashtag) == null) {
+//            count = latest_count;
+//        }
+//        else {
+//            count = latest_count + this.hashtag_counts.get(hashtag);
+//        }
+//        this.hashtag_counts.put(hashtag, count);
 
         long curr_time = System.currentTimeMillis() / 1000L;
-        if (curr_time - this.last_log_time >= 10) {
-            List<Map.Entry<String, Long>> entries = new LinkedList<>(this.hashtag_counts.entrySet());
-            entries.sort(new EntryComparator());
-
-            int loopVal = Math.min(entries.size(), 100);
-            ArrayList<String> topHashtags = new ArrayList<>(loopVal);
-            for (int i = 0; i < loopVal; i++) {
-                topHashtags.add(entries.get(i).getKey());
-            }
-
-            StringBuilder log_line = new StringBuilder("<" + curr_time + ">");
-            for (String ht : topHashtags) {
-                log_line.append(String.format("<%s>", ht));
-            }
-            log_line.append("\n");
-
-            try {
-                this.fw.write(log_line.toString());
-                this.fw.flush();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            this.last_log_time = curr_time;
+        try {
+            this.fw.write(String.format("Current Time: %d\t", curr_time));
+            this.fw.write(String.format("Last Log Time: %d\t", this.last_log_time));
+            this.fw.write(String.format("Collection Size: %d\n", this.hashtag_counts.size()));
+            this.fw.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+//        if (curr_time - this.last_log_time >= 10) {
+//            List<Map.Entry<String, Long>> entries = new LinkedList<>(this.hashtag_counts.entrySet());
+//            entries.sort(new EntryComparator());
+//
+//            int loopVal = Math.min(entries.size(), 100);
+//            ArrayList<String> topHashtags = new ArrayList<>(loopVal);
+//            for (int i = 0; i < loopVal; i++) {
+//                topHashtags.add(entries.get(i).getKey());
+//            }
+//
+//            StringBuilder log_line = new StringBuilder("<" + curr_time + ">");
+//            for (String ht : topHashtags) {
+//                log_line.append(String.format("<%s>", ht));
+//            }
+//            log_line.append("\n");
+//
+//            try {
+//                this.fw.write(log_line.toString());
+//                this.fw.flush();
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//
+//            this.last_log_time = curr_time;
+//        }
     }
 
     @Override

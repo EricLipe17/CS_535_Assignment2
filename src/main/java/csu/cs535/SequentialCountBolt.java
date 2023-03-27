@@ -1,8 +1,11 @@
 package csu.cs535;
 
+import org.apache.storm.task.OutputCollector;
+import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.BasicOutputCollector;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseBasicBolt;
+import org.apache.storm.topology.base.BaseRichBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 import org.apache.storm.tuple.Values;
@@ -11,12 +14,18 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class SequentialCountBolt extends BaseBasicBolt {
+public class SequentialCountBolt extends BaseRichBolt {
     ConcurrentHashMap<String, ArrayList<Long>> count_structure = new ConcurrentHashMap<>();
     long current = 1;
+    OutputCollector collector;
 
     @Override
-    public void execute(Tuple tuple, BasicOutputCollector collector) {
+    public void prepare(Map<String, Object> map, TopologyContext topologyContext, OutputCollector outputCollector) {
+        this.collector = outputCollector;
+    }
+
+    @Override
+    public void execute(Tuple tuple) {
         ArrayList<Long> counts;
         ArrayList<String> bucket = (ArrayList<String>)tuple.getValue(0);
         for (int i = 0; i < bucket.size(); i++) {
@@ -48,6 +57,7 @@ public class SequentialCountBolt extends BaseBasicBolt {
         }
 
         this.current++;
+        this.collector.ack(tuple);
     }
 
     @Override

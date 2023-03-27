@@ -26,8 +26,9 @@ public class Main {
 
         Config conf = new Config();
         conf.setDebug(true);
-        String topoName = "Hashtags";
+        String topoName = "Hashtags1";
         conf.setNumWorkers(1);
+        conf.setMessageTimeoutSecs(300);
         try {
             StormSubmitter.submitTopologyWithProgressBar(topoName, conf, builder.createTopology());
         } catch (AlreadyAliveException | InvalidTopologyException | AuthorizationException e) {

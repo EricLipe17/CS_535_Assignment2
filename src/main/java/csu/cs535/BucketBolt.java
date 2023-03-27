@@ -40,5 +40,6 @@ public class BucketBolt extends BaseRichBolt {
             this.collector.emit(new Values(this.hashtags));
             this.hashtags.clear();
         }
+        this.collector.ack(tuple);
     }
 }
