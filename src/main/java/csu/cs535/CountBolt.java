@@ -22,6 +22,7 @@ public class CountBolt extends BaseRichBolt {
     public CountBolt(int numHashtags) {
         this.numHashtags = numHashtags;
         this.hashtags = new ArrayList<>(this.numHashtags);
+        this.count_structure = new ConcurrentHashMap<>();
     }
 
     @Override

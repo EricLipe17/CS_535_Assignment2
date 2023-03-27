@@ -15,7 +15,7 @@ import java.util.Objects;
 public class Main {
     public static void main(String[] args) {
         int numCountBolts = 1;
-        if (Objects.equals(args[0], "-p")) {
+        if (args.length > 0 && Objects.equals(args[0], "-p")) {
             numCountBolts = 4;
         }
         TopologyBuilder builder = new TopologyBuilder();
