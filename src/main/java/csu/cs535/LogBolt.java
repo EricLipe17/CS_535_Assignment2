@@ -58,7 +58,7 @@ public class LogBolt extends BaseRichBolt {
         this.hashtag_counts.put(hashtag, count);
 
         long curr_time = System.currentTimeMillis() / 1000L;
-        if (curr_time - this.last_log_time >= 0.5) {
+        if (curr_time - this.last_log_time >= 10) {
             List<Map.Entry<String, Long>> entries = new LinkedList<>(this.hashtag_counts.entrySet());
             entries.sort(new EntryComparator());
 

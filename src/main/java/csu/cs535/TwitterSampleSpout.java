@@ -43,6 +43,10 @@ public class TwitterSampleSpout extends BaseRichSpout {
    public void nextTuple() {
       if (in == null) return;
       String line = null;
+
+      if (in.getLineNumber() == 99999) {
+         in.setLineNumber(0);
+      }
          
       try {
          line = in.readLine();
@@ -53,11 +57,6 @@ public class TwitterSampleSpout extends BaseRichSpout {
       if (line != null) {
          // System.out.println("SPOUT " + line);
          collector.emit(new Values(line));
-      }
-      else {
-         // When the file has no more hashtags let our count bolt(s) know so that it can process/flush the rest
-         // of its bucket to the log bolt
-         this.collector.emit(new Values("!!NO_MORE_HASHTAGS!!"));
       }
    }
 

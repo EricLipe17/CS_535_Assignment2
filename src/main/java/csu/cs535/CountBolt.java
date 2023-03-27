@@ -35,10 +35,8 @@ public class CountBolt extends BaseRichBolt {
         this.collector.ack(tuple);
 
         // Collect hashtag and execute lossy count algorithm if our bucket is full
-        String incoming_hashtag = tuple.getString(0);
         this.hashtags.add(tuple.getString(0));
-        final boolean flush = incoming_hashtag.equals("!!NO_MORE_HASHTAGS!!");
-        if (this.hashtags.size() == this.numHashtags || flush) {
+        if (this.hashtags.size() == this.numHashtags) {
             // Update the counts
             ArrayList<Long> counts;
             for (int i = 0; i < this.hashtags.size(); i++) {
