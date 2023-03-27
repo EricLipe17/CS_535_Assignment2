@@ -7,6 +7,8 @@ import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.InvalidTopologyException;
 import org.apache.storm.topology.TopologyBuilder;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -31,6 +33,19 @@ public class Main {
         } catch (AlreadyAliveException | InvalidTopologyException | AuthorizationException e) {
             throw new RuntimeException(e);
         }
+
+//
+//        long last_log_time = System.currentTimeMillis() / 1000L;
+//        try {
+//            BufferedWriter bw = new BufferedWriter(new FileWriter("hashtag_counts.log", false));
+//            bw.write(String.format("Start of log file at time %d", last_log_time));
+//            bw.newLine();
+//            bw.flush();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+
+
 //        long curr_time = System.currentTimeMillis() / 1000L;
 //        long current = 1L;
 //        ArrayList<Long> counts;

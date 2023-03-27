@@ -24,7 +24,7 @@ class EntryComparator implements Comparator<Map.Entry<String, Long>> {
 public class LogBolt extends BaseRichBolt {
     long last_log_time;
     ConcurrentHashMap<String, Long> hashtag_counts = new ConcurrentHashMap<>();
-    BufferedWriter bw;
+    FileWriter fw;
 
     OutputCollector collector;
 
@@ -38,9 +38,8 @@ public class LogBolt extends BaseRichBolt {
         this.collector = outputCollector;
         this.last_log_time = System.currentTimeMillis() / 1000L;
         try {
-            this.bw = new BufferedWriter(new FileWriter("/s/chopin/a/grad/ericlipe/hashtag_counts.log", false));
-            this.bw.write(String.format("Start of log file at time %d", this.last_log_time));
-            this.bw.newLine();
+            this.fw = new FileWriter("/s/chopin/a/grad/ericlipe/hashtag_counts.log", false);
+            this.fw.write(String.format("Start of log file at time %d\n", this.last_log_time));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -75,10 +74,10 @@ public class LogBolt extends BaseRichBolt {
             for (String ht : topHashtags) {
                 log_line.append(String.format("<%s>", ht));
             }
+            log_line.append("\n");
 
             try {
-                this.bw.write(log_line.toString());
-                this.bw.newLine();
+                this.fw.write(log_line.toString());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -90,8 +89,8 @@ public class LogBolt extends BaseRichBolt {
     @Override
     public void cleanup() {
         try {
-            this.bw.flush();
-            this.bw.close();
+            this.fw.flush();
+            this.fw.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
