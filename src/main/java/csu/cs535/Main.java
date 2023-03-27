@@ -5,29 +5,33 @@ import org.apache.storm.StormSubmitter;
 import org.apache.storm.generated.AlreadyAliveException;
 import org.apache.storm.generated.AuthorizationException;
 import org.apache.storm.generated.InvalidTopologyException;
+import org.apache.storm.topology.BoltDeclarer;
+import org.apache.storm.topology.InputDeclarer;
 import org.apache.storm.topology.TopologyBuilder;
+import org.apache.storm.tuple.Fields;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Objects;
 
 public class Main {
     public static void main(String[] args) {
+        int numCountBolts = 1;
+        if (Objects.equals(args[0], "-p")) {
+            numCountBolts = 4;
+        }
         TopologyBuilder builder = new TopologyBuilder();
         builder.setSpout("FakeTwitterSpout", new TwitterSampleSpout());
-        builder.setBolt("BucketBolt", new BucketBolt(100), 1).shuffleGrouping("FakeTwitterSpout");
-        builder.setBolt("CountBolt", new SequentialCountBolt(), 1).shuffleGrouping("BucketBolt");
-        builder.setBolt("LogBolt", new LogBolt(), 1).shuffleGrouping("CountBolt");
+        for (int i = 0; i < numCountBolts; i++) {
+            builder.setBolt("CountBolt" + i, new CountBolt(20), 1).fieldsGrouping("FakeTwitterSpout", new Fields("hashtag"));
+        }
+        InputDeclarer<BoltDeclarer> declarer = builder.setBolt("LogBolt", new LogBolt(), 1).shuffleGrouping("CountBolt0");;
+        for (int i = 1; i < numCountBolts; i++) {
+            declarer = declarer.shuffleGrouping("CountBolt" + i);
+        }
 
         Config conf = new Config();
         conf.setDebug(true);
-        String topoName = "Hashtags1";
-        conf.setNumWorkers(1);
+        String topoName = "Hashtags";
+        conf.setNumWorkers(numCountBolts);
         conf.setMessageTimeoutSecs(300);
         try {
             StormSubmitter.submitTopologyWithProgressBar(topoName, conf, builder.createTopology());
